@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Vec & Hashmap - Rust - Vector - HashMap," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="1、Vector - Heap, Dynamic Set up:  Vec::new();  vec![1,2,3]; Add: v.push(10) Read:  vv &#x3D; &amp;v[index] if null – panic    v.get(index) return Option&lt;&amp;T&gt; v.get_unchecked(2) return &amp;i32 uns">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RustDay13 Paterning Match">
+<meta property="og:url" content="https://rainy-zry.github.io/2024/09/05/Rust-Day13/index.html">
+<meta property="og:site_name" content="全性保真">
+<meta property="og:description" content="1、Vector - Heap, Dynamic Set up:  Vec::new();  vec![1,2,3]; Add: v.push(10) Read:  vv &#x3D; &amp;v[index] if null – panic    v.get(index) return Option&lt;&amp;T&gt; v.get_unchecked(2) return &amp;i32 uns">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-09-05T13:43:20.000Z">
+<meta property="article:modified_time" content="2024-09-05T08:31:42.301Z">
+<meta property="article:author" content="Rainy Yang">
+<meta property="article:tag" content="Vec &amp; Hashmap - Rust - Vector - HashMap">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false,"description":"常应常静，常清静矣"},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://Rainy-zry.github.io/2024/09/05/Rust-Day13/"/>
+
+
+
+
+
+
+
+  <title>RustDay13 Paterning Match | 全性保真</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">全性保真</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Welcome to My Blog</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-friends">
+          <a href="/friends/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            friends
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="Searching..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://Rainy-zry.github.io/2024/09/05/Rust-Day13/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xxxx">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="全性保真">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">RustDay13 Paterning Match</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-09-05T21:43:20+08:00">
+                2024-09-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Rust/" itemprop="url" rel="index">
+                    <span itemprop="name">Rust</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="1、Vector-Heap-Dynamic"><a href="#1、Vector-Heap-Dynamic" class="headerlink" title="1、Vector - Heap, Dynamic"></a>1、Vector - Heap, Dynamic</h2><ul>
+<li>Set up:  <code>Vec::new();</code>  <code>vec![1,2,3];</code></li>
+<li>Add: <code>v.push(10)</code></li>
+<li>Read: <ul>
+<li><code>vv = &amp;v[index]</code> if null – panic   </li>
+<li><code>v.get(index)</code> return <code>Option&lt;&amp;T&gt;</code></li>
+<li><code>v.get_unchecked(2)</code> return <code>&amp;i32</code> <code>unsafe</code></li>
+</ul>
+</li>
+<li><strong>Go through</strong> <ul>
+<li><code>for vv in v</code>  </li>
+<li><code>for vv in &amp;v</code>  </li>
+<li><code>for vv in &amp;mut v</code></li>
+<li><code>for vv:&amp;132 in v.iter()</code>  <code>for vv:&amp;mut i32 in v.iter_mut()</code></li>
+<li>Consume v:<ul>
+<li>&#96;let consume_v &#x3D; v.into_iter(); </li>
+<li><code>for vv in consume_v&#123;&#125;;</code>  v has been consumed, cannot be used</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">fn main() &#123;</span><br><span class="line">    let v = vec![1, 2, 3];</span><br><span class="line">    let iter = v.into_iter();</span><br><span class="line">    for x in iter &#123;</span><br><span class="line">        println!(&quot;&#123;&#125;&quot;, x); </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Delete: <ul>
+<li><code>v.pop()</code> return <code>Option&lt;T&gt;</code>  </li>
+<li><code>v.remove(index)</code> return <code>T</code></li>
+</ul>
+</li>
+<li>Append&#x2F;Spilt&#x2F;Insert <ul>
+<li><code>v1.append(&amp;mut v2)</code>  </li>
+<li><code>v1 = v.split_off(3)</code> 2|3  </li>
+<li><code>v.insert(index,val)</code></li>
+</ul>
+</li>
+<li>Copy slice: <code>let v1 = v.clone()</code>  <code>v.copy_from_slice(&amp;slice);</code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">fn main() &#123;</span><br><span class="line">    let mut v = vec![10, 20, 30, 40, 50];</span><br><span class="line">    let val = &amp;v[2];</span><br><span class="line">    println!(&quot;The third element is &#123;&#125;&quot;, val); </span><br><span class="line">    if let Some(x) = v.get(2)&#123;</span><br><span class="line">	    println!(&quot;&#123;&#125;&quot;,x);</span><br><span class="line">    &#125;else&#123;</span><br><span class="line">		println!(&quot;none&quot;);  </span><br><span class="line">    &#125;</span><br><span class="line">	let a: Option&lt;i32&gt; = v.pop();</span><br><span class="line">	let b: i32 = v.remove(1);</span><br><span class="line"></span><br><span class="line">	let mut v2 = vec![100,1000,10000];</span><br><span class="line">	v.append(&amp; mut v2);</span><br><span class="line">	v1 = v.split_off(3);</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><strong>filter and map</strong>  <ul>
+<li><code>v.iter().filter(|&amp;&amp;x| condition).collect()</code></li>
+<li><code>v.iter().map(|x| f(x) ).collect()</code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">fn main() &#123;</span><br><span class="line">    let v = vec![1, 2, 3, 4, 5];</span><br><span class="line">    let evens: Vec&lt;_&gt; = v.iter().filter(|&amp;&amp;x| x % 2 == 0).collect();</span><br><span class="line">    println!(&quot;&#123;:?&#125;&quot;, evens); </span><br><span class="line">    </span><br><span class="line">    let doubled: Vec&lt;_&gt; = v.iter().map(|x| x * 2).collect();</span><br><span class="line">    println!(&quot;&#123;:?&#125;&quot;, doubled); </span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li>vec -&gt; array<ul>
+<li><code>b:Box&lt;[i32]&gt; = v.into_boxed_slice()</code></li>
+<li><code>a: Box&lt;[i32;n]&gt; = a.try_into().unwrap()</code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">fn main() &#123;</span><br><span class="line">    let v = vec![1, 2, 3];</span><br><span class="line">    </span><br><span class="line">    let boxed_slice = v.into_boxed_slice();</span><br><span class="line">    let array: Box&lt;[i32; 3]&gt; = boxed_slice.try_into().unwrap();</span><br><span class="line">    </span><br><span class="line">    println!(&quot;&#123;:?&#125;&quot;, array); // 输出: [1, 2, 3]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><strong>vec+ enum</strong><br>Set up:<br><code>let t: Vec&lt;Enumname&gt; = vec![Test::V1,Test::V2]</code><br>Go through:<br><code>for (a,b:&amp;Enumname) in t.iter().enumerate()&#123;&#125; </code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">fn main() &#123;</span><br><span class="line">    enum Test &#123;</span><br><span class="line">        Integer(i32),</span><br><span class="line">        Float(f64),</span><br><span class="line">        Text(String),</span><br><span class="line">    &#125;</span><br><span class="line">    let t: Vec&lt;Test&gt; = vec![</span><br><span class="line">        Test::Integer(42),</span><br><span class="line">        Test::Float(3.14),</span><br><span class="line">        Test::Text(String::from(&quot;Hello&quot;)),</span><br><span class="line">    ];</span><br><span class="line"></span><br><span class="line">    for (index:usize, tt: &amp;Test) in t.iter().enumerate() &#123;</span><br><span class="line">        match item &#123;</span><br><span class="line">            Test::Integer(value) =&gt; println!(&quot;Index &#123;&#125;: Integer(&#123;&#125;)&quot;, index, value),</span><br><span class="line">            Test::Float(value) =&gt; println!(&quot;Index &#123;&#125;: Float(&#123;&#125;)&quot;, index, value),</span><br><span class="line">            Test::Text(value) =&gt; println!(&quot;Index &#123;&#125;: Text(&#123;&#125;)&quot;, index, value),</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><strong>Capacity and reset</strong><br><strong>When capacity needs to extend, Double it</strong><ul>
+<li>Initially allocate: <code>Vec::with_capacity(n)</code></li>
+<li>Check: <code>v.capacity()</code></li>
+<li>Adjust: <code>v.shrink_to_fit();</code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">fn main() &#123;</span><br><span class="line">    let mut vec = Vec::with_capacity(2); </span><br><span class="line"></span><br><span class="line">    println!(&quot;Initial capacity: &#123;&#125;&quot;, vec.capacity());</span><br><span class="line"></span><br><span class="line">    vec.push(1);</span><br><span class="line">    vec.push(2);</span><br><span class="line">// 2 </span><br><span class="line">    println!(&quot;Capacity after pushing 2 elements: &#123;&#125;&quot;, vec.capacity());</span><br><span class="line"></span><br><span class="line">    vec.push(3); // Re-allocate</span><br><span class="line">// 4</span><br><span class="line">    println!(&quot;Capacity after pushing 3rd element: &#123;&#125;&quot;, vec.capacity());</span><br><span class="line">    vec.shrink_to_fit();</span><br><span class="line">    println!(&quot;Capacity after shrink: &#123;&#125;&quot;, vec.capacity());</span><br><span class="line">// 3</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<h2 id="2、HashMap"><a href="#2、HashMap" class="headerlink" title="2、HashMap"></a>2、HashMap</h2><p><code>use std::collections::HashMap;</code></p>
+<ul>
+<li>Set up:<ul>
+<li>Blank: <code>let h:HashMap&lt;String,i32&gt; = HashMap::new()</code></li>
+<li>Initialization: <code>let mut h = HashMap::from([(String::from(&quot;A&quot;):1),(..)])</code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">use std::collections::HashMap;</span><br><span class="line"></span><br><span class="line">fn main() &#123;</span><br><span class="line">    let mut map: HashMap&lt;String, i32&gt; = HashMap::new();</span><br><span class="line">    map.insert(String::from(&quot;A&quot;),3);</span><br><span class="line">    </span><br><span class="line">    let mut scores = HashMap::from([</span><br><span class="line">        (String::from(&quot;Blue&quot;), 10),</span><br><span class="line">        (String::from(&quot;Yellow&quot;), 50),</span><br><span class="line">    ]);</span><br><span class="line"></span><br><span class="line">    println!(&quot;&#123;:?&#125;&quot;, map);   </span><br><span class="line">    println!(&quot;&#123;:?&#125;&quot;, scores); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li>Insert and update  <ul>
+<li><code>a.insert(String::from(&quot;A&quot;),10)</code></li>
+<li><code>a.insert(String::from(&quot;A&quot;),30)</code> Updated</li>
+</ul>
+</li>
+<li>Combine:<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">for (key, value) in a2&#123;</span><br><span class="line">	a1.entry(key).or_insert(value); // No cover</span><br><span class="line">	//a1.entry(key).insert(value);// cover</span><br><span class="line">&#125;	</span><br></pre></td></tr></table></figure></li>
+<li>Read: <ul>
+<li><code>a.get(&quot;A&quot;)</code> return <code>Option&lt;&amp;T&gt;</code>  <code>if le some(v) = a.get_mut(&quot;A&quot;)&#123;*v=3&#125; </code></li>
+<li><code>let keys: Vec&lt;_&gt; = a.keys().collect();</code> </li>
+<li><code>let values: Vec&lt;_&gt; = a.values().collect();</code></li>
+</ul>
+</li>
+<li>Delete: <ul>
+<li><code>a.remove(&quot;A&quot;)</code> return <code>Option&lt;T&gt;</code></li>
+<li><code>a.clear()</code></li>
+</ul>
+</li>
+<li>if certain key exist: <code>if a.contains_key(&quot;A&quot;)</code></li>
+<li>Go through: <ul>
+<li><code>for (key: &amp;String,val: &amp;i32) in &amp;mut a &#123;*val = 0;&#125;</code></li>
+<li><strong>Key are unchangeable</strong></li>
+<li><ul>
+<li><code>match</code>  <ul>
+<li><code>match key.as_str()&#123;&quot;A&quot; =&gt;&#123;&#125;&#125;</code></li>
+<li><code>match value&#123;0..=20 =&gt;&#123;&#125;&#125;</code></li>
+<li><code>match (key.as_str(),value)&#123;(&quot;A&quot;,_) =&gt; &#123;&#125;&#125;</code></li>
+<li>+if <code>match key.as_str()&#123;&quot;A&quot; if *value&lt;10 =&gt; &#123;&#125;&#125;</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">use std::collections::HashMap;</span><br><span class="line"></span><br><span class="line">fn main() &#123;</span><br><span class="line">    let mut scores = HashMap::new();</span><br><span class="line">    </span><br><span class="line">    scores.insert(String::from(&quot;Blue&quot;), 10);</span><br><span class="line">    scores.insert(String::from(&quot;Yellow&quot;), 50);</span><br><span class="line">    scores.insert(String::from(&quot;Red&quot;), 30);</span><br><span class="line">    </span><br><span class="line">    for (key: &amp;String, value:&amp;i32) in &amp;scores &#123;</span><br><span class="line">        match key.as_str() &#123;</span><br><span class="line">            &quot;Blue&quot; if *value &lt; 20 =&gt; println!(&quot;&#123;&#125; has a low score of &#123;&#125;&quot;, key, value),</span><br><span class="line">            &quot;Yellow&quot; if *value &gt;= 20 =&gt; println!(&quot;&#123;&#125; has a high score of &#123;&#125;&quot;, key, value),</span><br><span class="line">            _ =&gt; println!(&quot;&#123;&#125; has a score of &#123;&#125;&quot;, key, value),</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>Hash Ownership</strong><br><strong>Lifetime of variants is determined by:  LAST TIME being Used &amp; Block Scope.</strong><ul>
+<li>ISERT: <code>h.insert(k,v)</code>  k, v Ownership transferred</li>
+<li>READ: <code>h.get()</code> and <code>h.get_mut()</code> <ul>
+<li>can’t operate together in the same scope</li>
+<li><code>get_mut()</code> can’t be used tewice</li>
+</ul>
+</li>
+<li>FETCH: <code>let m1 = map.get(&quot;A&quot;)</code> <ul>
+<li><code>if let Some(v:&amp;i32)=m1 &#123;&#125;</code>  m1 ownsership transferred</li>
+<li>&#96;if let Some(v:&amp;&amp;i32)&#x3D;&amp;m1{} √</li>
+</ul>
+</li>
+<li>TRANSFER: <ul>
+<li><code>fn process(map: HashMap&lt;String,i32&gt;)&#123;&#125; process(map);</code> map ownership lost</li>
+<li><code>fn process(map: &amp;HashMap&lt;String,i32&gt;)&#123;&#125; process(&amp;map);</code> √</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">fn main()&#123;</span><br><span class="line">	let mut map = HashMap::new();</span><br><span class="line">    map.insert(&quot;key1&quot;, &quot;value1&quot;);</span><br><span class="line">    </span><br><span class="line">    let m2 = map.get_mut(&quot;key1&quot;); //m2 start</span><br><span class="line">    if let Some(v) = m2&#123;</span><br><span class="line">        *v = &quot;new value1&quot;;</span><br><span class="line">    &#125; </span><br><span class="line">    //println!(&quot;&#123;:?&#125;&quot;,m2); // m2 lost ownership</span><br><span class="line">    //m2 ends</span><br><span class="line">    </span><br><span class="line">	let m1 = map.get(&quot;key1&quot;); //m1 starts</span><br><span class="line">    println!(&quot;&#123;:?&#125;&quot;,m1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="3、hash-collision"><a href="#3、hash-collision" class="headerlink" title="3、hash collision"></a>3、hash collision</h2><p>A Hash Collision is when <strong>two different keys</strong> are mapped to <strong>the same index</strong></p>
+<h3 id="seperate-chaining"><a href="#seperate-chaining" class="headerlink" title="seperate chaining"></a>seperate chaining</h3><p>Set up a hashmap: every <code>Index</code> –&gt; store a <code>Vec&lt;(key,value)&gt;</code></p>
+<ul>
+<li><code>let mut a: HashMap&lt;u32, Vec&lt;u32,u32&gt;&gt; = HashMap::new();</code></li>
+<li><code>h.entry(index).or_insert(Vec::new()).push((k,v))</code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">use std::collections::HashMap;</span><br><span class="line"></span><br><span class="line">fn hash(key: u32) -&gt; u32 &#123;</span><br><span class="line">    key % 5</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fn insert(hash_table: &amp;mut HashMap&lt;u32, Vec&lt;(u32, u32)&gt;&gt;, key: u32, value: u32) &#123;</span><br><span class="line">    let index = hash(key); //function(key) --&gt; same index</span><br><span class="line">    hash_table.entry(index).or_insert(Vec::new()).push((key, value));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fn print_hash_table(hash_table: &amp;HashMap&lt;u32, Vec&lt;(u32, u32)&gt;&gt;) &#123;</span><br><span class="line">    for (index, list) in hash_table &#123;</span><br><span class="line">        println!(&quot;Index &#123;&#125;: &#123;:?&#125;&quot;, index, list);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">fn main() &#123;</span><br><span class="line">    let mut hash_table: HashMap&lt;u32, Vec&lt;(u32, u32)&gt;&gt; = HashMap::new();</span><br><span class="line"></span><br><span class="line">    insert(&amp;mut hash_table, 3, 9); //3%5=3</span><br><span class="line">    insert(&amp;mut hash_table, 8, 64); //8%5=3</span><br><span class="line">    insert(&amp;mut hash_table, 13, 169); //13%5=3</span><br><span class="line">    </span><br><span class="line">    print_hash_table(&amp;hash_table);</span><br><span class="line">&#125;</span><br><span class="line">//Index 3: [(3, 9), (8, 64), (13, 169)]</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="linear-search"><a href="#linear-search" class="headerlink" title="linear search"></a>linear search</h3><p>Set up a hashmap <code>Vec&lt;&gt;</code>, every index –&gt; <code>Option&lt;(key,value)&gt;</code>  if full-index added, therefore, vector consists of <code>Some(k,v) and None</code></p>
+<ul>
+<li><code>let mut hash_table: Vec&lt;Option&lt;(u32,u32)&gt;&gt; = vec![None,5]</code></li>
+<li><code>while h[index].is_some()&#123;change index&#125; h[index]=Some((k,v))</code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">fn hash(key: u32) -&gt; usize &#123;</span><br><span class="line">	(key % 5) as usize</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fn insert(hash_table: &amp;mut Vec&lt;Option&lt;(u32, u32)&gt;&gt;, key: u32, value: u32) &#123;</span><br><span class="line">    let mut index = hash(key);</span><br><span class="line">    while hash_table[index].is_some() &#123;</span><br><span class="line">        index = (index + 1) % hash_table.len(); </span><br><span class="line">        // index 3 -&gt; (3+1)%1=4 -&gt; (3+1)%2=0</span><br><span class="line">    &#125;</span><br><span class="line">    hash_table[index] = Some((key, value));</span><br><span class="line">&#125;</span><br><span class="line">fn print_hash_table(hash_table: &amp;Vec&lt;Option&lt;(u32, u32)&gt;&gt;) &#123;</span><br><span class="line">    for (index:u32, pair: &amp;Option&lt;(u32,u32)&gt;) in hash_table.iter().enumerate() &#123;</span><br><span class="line">        match pair &#123;</span><br><span class="line">            Some((key, value)) =&gt; println!(&quot;Index &#123;&#125;: (&#123;&#125;, &#123;&#125;)&quot;, index, key, value),</span><br><span class="line">            None =&gt; println!(&quot;Index &#123;&#125;: Empty&quot;, index), // null</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;  </span><br><span class="line">fn main() &#123;</span><br><span class="line">    let mut hash_table = vec![None; 5];  </span><br><span class="line">    insert(&amp;mut hash_table, 3, 9);</span><br><span class="line">    insert(&amp;mut hash_table, 8, 64);</span><br><span class="line">    insert(&amp;mut hash_table, 13, 169);</span><br><span class="line">    print_hash_table(&amp;hash_table);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="4、zip"><a href="#4、zip" class="headerlink" title="4、zip()"></a>4、zip()</h2><ul>
+<li>Combine two iters<br><code>for (a,b) in v1.iter().zip(v2.iter())</code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">fn main() &#123;</span><br><span class="line">    let v1 = vec![1, 2];</span><br><span class="line">    let v2 = vec![4, 5, 6];</span><br><span class="line"></span><br><span class="line">    for (a, b) in v1.iter().zip(v2.iter()) &#123;</span><br><span class="line">        println!(&quot;(&#123;&#125;, &#123;&#125;)&quot;, a, b); //(1,4) (2,5)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    let v3 = vec![&quot;a&quot;, &quot;b&quot;, &quot;c&quot;];</span><br><span class="line">     for (a, b) in v2.iter().zip(v3.iter()) &#123;</span><br><span class="line">        println!(&quot;(&#123;&#125;, &#123;&#125;)&quot;, a, b); //(4:a) (5:b) (6:c)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>zip() + map&#x2F;filter<ul>
+<li><code>v1.iter().zip(v2).map(|(a:&amp;i32,b:&amp;i32)|f(a,b)).collect()</code></li>
+<li><code>v1.iter().zip(v2).filter(|(&amp;a:i32,&amp;b:i32)|condition).collect()</code></li>
+</ul>
+</li>
+<li>zip() + enum<ul>
+<li><code>for (i, (a, b)) in v1.iter().zip(v2.iter()).enumerate()</code> i 0..n</li>
+</ul>
+</li>
+<li>unzip<br><code>let (vec1, vec2): (Vec&lt;_&gt;, Vec&lt;_&gt;) = v1.iter().zip(v2.iter()).unzip();</code></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+<div>
+  
+    <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+
+
+  
+</div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Vec-Hashmap-Rust-Vector-HashMap/" rel="tag"># Vec & Hashmap - Rust - Vector - HashMap</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/09/04/Rust-Day12/" rel="next" title="RustDay12 Paterning Match">
+                <i class="fa fa-chevron-left"></i> RustDay12 Paterning Match
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">xxxx</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1%E3%80%81Vector-Heap-Dynamic"><span class="nav-number">1.</span> <span class="nav-text">1、Vector - Heap, Dynamic</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2%E3%80%81HashMap"><span class="nav-number">2.</span> <span class="nav-text">2、HashMap</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3%E3%80%81hash-collision"><span class="nav-number">3.</span> <span class="nav-text">3、hash collision</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#seperate-chaining"><span class="nav-number">3.1.</span> <span class="nav-text">seperate chaining</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#linear-search"><span class="nav-number">3.2.</span> <span class="nav-text">linear search</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4%E3%80%81zip"><span class="nav-number">4.</span> <span class="nav-text">4、zip()</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Rainy Yang</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_sphere.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

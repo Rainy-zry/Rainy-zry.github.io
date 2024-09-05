@@ -103,109 +103,156 @@
       </tags>
   </entry>
   <entry>
-    <title>RustDay11 Rust data type—Struct</title>
-    <url>/2024/08/26/Rust-Day11/</url>
-    <content><![CDATA[<h2 id="1、Definition"><a href="#1、Definition" class="headerlink" title="1、Definition"></a>1、Definition</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">struct User&#123;</span><br><span class="line">	name: String,</span><br><span class="line">	balance: i32,</span><br><span class="line">	active: bool</span><br><span class="line">&#125;</span><br><span class="line">// Turple struct</span><br><span class="line">struct Color&#123;i32,i32,i32&#125;</span><br><span class="line">// Unit Struct</span><br><span class="line">struct Alwaysequal;</span><br><span class="line"></span><br><span class="line">fn main()&#123;</span><br><span class="line">	let mut user1 = User&#123;</span><br><span class="line">		name: String::from(&quot;王也&quot;),</span><br><span class="line">		balance: 1000,</span><br><span class="line">		active: true,</span><br><span class="line">	&#125;;</span><br><span class="line">	user1.name = String::from(&quot;张楚岚&quot;);</span><br><span class="line">	</span><br><span class="line">	// struct Update method </span><br><span class="line">	let mut user2 = User&#123;</span><br><span class="line">		name: String::from(&quot;冯宝宝&quot;), //ownership transferred</span><br><span class="line">		..user1</span><br><span class="line">	&#125;; </span><br><span class="line"></span><br><span class="line">	let col = Color(0,0,0);</span><br><span class="line">	println!(&quot;&#123;&#125;&quot;,col.0)</span><br><span class="line"></span><br><span class="line">	let oject = Alwaysequal;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="2、Ownership"><a href="#2、Ownership" class="headerlink" title="2、Ownership"></a>2、Ownership</h3><ul>
-<li>Owning fields : struct instance and all it’s fields share the same lifetime </li>
-<li>Dynamic memory: No Copy– ownership transfferd</li>
-<li>Borrowed fields: If there are fields like <code>&amp;T or &amp;mut T</code>  Lifetime has to be annotated. <ul>
-<li><strong>vv &#x3D; &amp;v,  lifeime v≥vv</strong></li>
-<li>&lt;’a&gt;–&gt; <strong>Reference fields lifetime ≥ Struct lifetime</strong></li>
+    <title>RustDay13 Paterning Match</title>
+    <url>/2024/09/05/Rust-Day13/</url>
+    <content><![CDATA[<h2 id="1、Vector-Heap-Dynamic"><a href="#1、Vector-Heap-Dynamic" class="headerlink" title="1、Vector - Heap, Dynamic"></a>1、Vector - Heap, Dynamic</h2><ul>
+<li>Set up:  <code>Vec::new();</code>  <code>vec![1,2,3];</code></li>
+<li>Add: <code>v.push(10)</code></li>
+<li>Read: <ul>
+<li><code>vv = &amp;v[index]</code> if null – panic   </li>
+<li><code>v.get(index)</code> return <code>Option&lt;&amp;T&gt;</code></li>
+<li><code>v.get_unchecked(2)</code> return <code>&amp;i32</code> <code>unsafe</code></li>
 </ul>
 </li>
-<li>If the ownership of one field changed, the whole struct can’t be added value&#x2F;call, but single field is ok <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">struct User&#123;</span><br><span class="line">    name: String,</span><br><span class="line">&#125;</span><br><span class="line">fn main()&#123;</span><br><span class="line">    let mut user1 = User&#123;</span><br><span class="line">    name: String::from(&quot;王也&quot;),</span><br><span class="line">    &#125;; </span><br><span class="line">    // Lifetime: user1-main&#123;&#125; user1.name belongs to user1</span><br><span class="line">    </span><br><span class="line">    // let mut name = user1.name; // ownership transferred </span><br><span class="line">    </span><br><span class="line">    let mut name: &amp; mut String = &amp; mut user1.name;</span><br><span class="line">    // name is mut address</span><br><span class="line">    // Lifetime: name ≤ user1.name</span><br><span class="line">      </span><br><span class="line">    *name = String::from(&quot;张楚岚&quot;); // change the address value</span><br><span class="line">    </span><br><span class="line">    println!(&quot;&#123;&#125;&quot;,user1.name);// changed</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><strong>Go through</strong> <ul>
+<li><code>for vv in v</code>  </li>
+<li><code>for vv in &amp;v</code>  </li>
+<li><code>for vv in &amp;mut v</code></li>
+<li><code>for vv:&amp;132 in v.iter()</code>  <code>for vv:&amp;mut i32 in v.iter_mut()</code></li>
+<li>Consume v:<ul>
+<li>&#96;let consume_v &#x3D; v.into_iter(); </li>
+<li><code>for vv in consume_v&#123;&#125;;</code>  v has been consumed, cannot be used</li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">struct User&lt;&#x27;a&gt; &#123;</span><br><span class="line">    username: &amp;&#x27;a str,  </span><br><span class="line">    email: &amp;&#x27;a str,</span><br><span class="line">&#125;</span><br><span class="line">fn main() &#123;</span><br><span class="line">    let email: String = String::from(&quot;Username@gail.com&quot;);</span><br><span class="line">// email- dynamic, Lifetime-main&#123;&#125;</span><br><span class="line"></span><br><span class="line">    let username: &amp;str = &amp;email[0..=7];</span><br><span class="line">// username is a slice of email, Lifetime ≤ email</span><br><span class="line"></span><br><span class="line">	let user1 = User&#123;</span><br><span class="line">	    username = username;</span><br><span class="line">	    email = &amp;email;</span><br><span class="line">    &#125;</span><br><span class="line">// user1 lifetime ≤ &amp;email</span><br><span class="line"></span><br><span class="line">    println!(&quot;&#123;&#125;&quot;,user1.username);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="3、Function"><a href="#3、Function" class="headerlink" title="3、Function"></a>3、Function</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">struct Rectangle &#123;</span><br><span class="line">    width: i32,</span><br><span class="line">    height: i32,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">impl Rectangle &#123;</span><br><span class="line"></span><br><span class="line">    // Instance funtion</span><br><span class="line">    fn ins_area( &amp;self )-&gt;i32&#123;</span><br><span class="line">        self.width * self.height</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    fn add(&amp;mut self, a: i32) &#123;</span><br><span class="line">        self.width += a;</span><br><span class="line">        self.height += a;</span><br><span class="line">        println!(&quot;added area is &#123;&#125;&quot;,self.ins_area());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">impl Rectangle&#123;</span><br><span class="line">    //Association function</span><br><span class="line">    fn new(width: i32, height: i32) -&gt; Rectangle &#123; </span><br><span class="line">	    Rectangle &#123; width, height &#125; </span><br><span class="line">    &#125;</span><br><span class="line">    fn asso_area(a:i32,b:i32) -&gt; i32&#123;</span><br><span class="line">        a * b</span><br><span class="line">    &#125;</span><br><span class="line">    fn total_area(r1:&amp;Rectangle, r2:&amp;Rectangle) -&gt; i32 &#123;</span><br><span class="line">        r1.ins_area() + r2.ins_area()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fn main()&#123;</span><br><span class="line">    let mut m1 = Rectangle::new(10,10);</span><br><span class="line"></span><br><span class="line">    println!(&quot;&#123;&#125;&quot;,m1.ins_area()); // call instance method</span><br><span class="line">    m1.add(2);</span><br><span class="line"></span><br><span class="line">    let area = Rectangle::asso_area(10, 5); //call association function</span><br><span class="line">    println!(&quot;&#123;&#125;&quot;,area);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="4、trait"><a href="#4、trait" class="headerlink" title="4、trait"></a>4、trait</h2><p>Act like an <strong>Interface</strong></p>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn main() &#123;</span><br><span class="line">    let v = vec![1, 2, 3];</span><br><span class="line">    let iter = v.into_iter();</span><br><span class="line">    for x in iter &#123;</span><br><span class="line">        println!(&quot;&#123;&#125;&quot;, x); </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <ul>
-<li>define<code>trait</code>** :<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">trait Need_print&#123;</span><br><span class="line">	fn print_info( &amp;self ); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>realize <code>trait</code> for struct: <code>impl TraitName for StructName</code> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">struct Book &#123;</span><br><span class="line">    title: String,</span><br><span class="line">    author: String,</span><br><span class="line">&#125;</span><br><span class="line">struct Person &#123;</span><br><span class="line">    name: String,</span><br><span class="line">    age: u8,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">impl Need_print for Book &#123;</span><br><span class="line">    fn print_info(&amp;self) &#123;</span><br><span class="line">        println!(&quot;Book: &#123;&#125; by &#123;&#125;&quot;, self.title, self.author);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">impl Need_print for Person &#123;</span><br><span class="line">    fn print_info(&amp;self) &#123;</span><br><span class="line">        println!(&quot;Person: &#123;&#125; is &#123;&#125; years old&quot;, self.name, self.age);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fn main() &#123;</span><br><span class="line">    let my_book = Book &#123;</span><br><span class="line">        title: String::from(&quot;Rust&quot;),</span><br><span class="line">        author: String::from(&quot;John&quot;),</span><br><span class="line">    &#125;;</span><br><span class="line">    let my_person = Person &#123;</span><br><span class="line">        name: String::from(&quot;Alice&quot;),</span><br><span class="line">        age: 30,</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    my_book.print_info(); </span><br><span class="line">    my_person.print_info(); </span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+<li>Delete: <ul>
+<li><code>v.pop()</code> return <code>Option&lt;T&gt;</code>  </li>
+<li><code>v.remove(index)</code> return <code>T</code></li>
 </ul>
-<h2 id="5、print"><a href="#5、print" class="headerlink" title="5、print"></a>5、print</h2><h3 id="derive-Debug"><a href="#derive-Debug" class="headerlink" title="#[derive(Debug)]"></a>#[derive(Debug)]</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#[derive(Debug)]</span><br><span class="line">struct User &#123;</span><br><span class="line">    name: String,</span><br><span class="line">    age: u32,</span><br><span class="line">&#125;</span><br><span class="line">fn main() &#123;</span><br><span class="line">    let user1 = User &#123;</span><br><span class="line">        name: String::from(&quot;Alice&quot;),</span><br><span class="line">        age: 30,</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    // 使用 Debug 输出完整的结构体内容</span><br><span class="line">    println!(&quot;&#123;:?&#125;&quot;, user1);  // simplified</span><br><span class="line">    println!(&quot;&#123;:#?&#125;&quot;, user1); // beautified</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="Customized-print-fmt"><a href="#Customized-print-fmt" class="headerlink" title="Customized print: fmt"></a>Customized print: <code>fmt</code></h3><h4 id="Display"><a href="#Display" class="headerlink" title="Display {}"></a>Display <code>&#123;&#125;</code></h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">use std::fmt;</span><br><span class="line"></span><br><span class="line">struct User &#123;</span><br><span class="line">    name: String,</span><br><span class="line">    age: u32,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">impl fmt::Display for User &#123;</span><br><span class="line">    fn fmt ( &amp;self, f: &amp;mut fmt::Formatter&lt;&#x27;_&gt;) -&gt; fmt::Result &#123;</span><br><span class="line">        write!(f, &quot;User is &#123;&#125;, Age is &#123;&#125;&quot;, self.name, self.age)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fn main() &#123;</span><br><span class="line">    let user = User &#123;</span><br><span class="line">        name: String::from(&quot;Alice&quot;),</span><br><span class="line">        age: 30,</span><br><span class="line">    &#125;;</span><br><span class="line">    println!(&quot;&#123;&#125;&quot;, user); // directly print user</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h4 id="Debug"><a href="#Debug" class="headerlink" title="Debug {:?}"></a>Debug <code>&#123;:?&#125;</code></h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#[derive(Debug)]</span><br><span class="line"></span><br><span class="line">struct User &#123;</span><br><span class="line">    name: String,</span><br><span class="line">    age: u32,</span><br><span class="line">&#125;</span><br><span class="line">fn main() &#123;</span><br><span class="line">    let user = User &#123;</span><br><span class="line">        name: String::from(&quot;Alice&quot;),</span><br><span class="line">        age: 30,</span><br><span class="line">    &#125;;</span><br><span class="line">    println!(&quot;&#123;:?&#125;&quot;, user);  </span><br><span class="line">    println!(&quot;&#123;:#?&#125;&quot;, user); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>E.g.:</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">use std::fmt;</span><br><span class="line">struct Rec&#123;</span><br><span class="line">	l:i32,</span><br><span class="line">	w:i32,</span><br><span class="line">&#125;</span><br><span class="line">impl fmt::Display for Rec&#123;</span><br><span class="line">	fn fmt( &amp;self, f:&amp;mut fmt::Formatter&lt;&#x27;_&gt;) -&gt; fmt::Result&#123;</span><br><span class="line">		for i in 0..self.l&#123;</span><br><span class="line">			let mut s = String::new();</span><br><span class="line">			for j in 0..self.w&#123;</span><br><span class="line">				s.push_str(&quot;*&quot;);</span><br><span class="line">			&#125;</span><br><span class="line">			write!(f,&quot;&#123;&#125;\n&quot;,s);</span><br><span class="line">		&#125;</span><br><span class="line">		Ok(())</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">fn main()&#123;</span><br><span class="line">	let r = Rec&#123;</span><br><span class="line">		l:4,</span><br><span class="line">		w:3</span><br><span class="line">	&#125;;</span><br><span class="line">	println!(&quot;&#123;&#125;&quot;,r);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+</li>
+<li>Append&#x2F;Spilt&#x2F;Insert <ul>
+<li><code>v1.append(&amp;mut v2)</code>  </li>
+<li><code>v1 = v.split_off(3)</code> 2|3  </li>
+<li><code>v.insert(index,val)</code></li>
+</ul>
+</li>
+<li>Copy slice: <code>let v1 = v.clone()</code>  <code>v.copy_from_slice(&amp;slice);</code><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn main() &#123;</span><br><span class="line">    let mut v = vec![10, 20, 30, 40, 50];</span><br><span class="line">    let val = &amp;v[2];</span><br><span class="line">    println!(&quot;The third element is &#123;&#125;&quot;, val); </span><br><span class="line">    if let Some(x) = v.get(2)&#123;</span><br><span class="line">	    println!(&quot;&#123;&#125;&quot;,x);</span><br><span class="line">    &#125;else&#123;</span><br><span class="line">		println!(&quot;none&quot;);  </span><br><span class="line">    &#125;</span><br><span class="line">	let a: Option&lt;i32&gt; = v.pop();</span><br><span class="line">	let b: i32 = v.remove(1);</span><br><span class="line"></span><br><span class="line">	let mut v2 = vec![100,1000,10000];</span><br><span class="line">	v.append(&amp; mut v2);</span><br><span class="line">	v1 = v.split_off(3);</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><strong>filter and map</strong>  <ul>
+<li><code>v.iter().filter(|&amp;&amp;x| condition).collect()</code></li>
+<li><code>v.iter().map(|x| f(x) ).collect()</code><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn main() &#123;</span><br><span class="line">    let v = vec![1, 2, 3, 4, 5];</span><br><span class="line">    let evens: Vec&lt;_&gt; = v.iter().filter(|&amp;&amp;x| x % 2 == 0).collect();</span><br><span class="line">    println!(&quot;&#123;:?&#125;&quot;, evens); </span><br><span class="line">    </span><br><span class="line">    let doubled: Vec&lt;_&gt; = v.iter().map(|x| x * 2).collect();</span><br><span class="line">    println!(&quot;&#123;:?&#125;&quot;, doubled); </span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li>vec -&gt; array<ul>
+<li><code>b:Box&lt;[i32]&gt; = v.into_boxed_slice()</code></li>
+<li><code>a: Box&lt;[i32;n]&gt; = a.try_into().unwrap()</code><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn main() &#123;</span><br><span class="line">    let v = vec![1, 2, 3];</span><br><span class="line">    </span><br><span class="line">    let boxed_slice = v.into_boxed_slice();</span><br><span class="line">    let array: Box&lt;[i32; 3]&gt; = boxed_slice.try_into().unwrap();</span><br><span class="line">    </span><br><span class="line">    println!(&quot;&#123;:?&#125;&quot;, array); // 输出: [1, 2, 3]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><strong>vec+ enum</strong><br>Set up:<br><code>let t: Vec&lt;Enumname&gt; = vec![Test::V1,Test::V2]</code><br>Go through:<br><code>for (a,b:&amp;Enumname) in t.iter().enumerate()&#123;&#125; </code><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn main() &#123;</span><br><span class="line">    enum Test &#123;</span><br><span class="line">        Integer(i32),</span><br><span class="line">        Float(f64),</span><br><span class="line">        Text(String),</span><br><span class="line">    &#125;</span><br><span class="line">    let t: Vec&lt;Test&gt; = vec![</span><br><span class="line">        Test::Integer(42),</span><br><span class="line">        Test::Float(3.14),</span><br><span class="line">        Test::Text(String::from(&quot;Hello&quot;)),</span><br><span class="line">    ];</span><br><span class="line"></span><br><span class="line">    for (index:usize, tt: &amp;Test) in t.iter().enumerate() &#123;</span><br><span class="line">        match item &#123;</span><br><span class="line">            Test::Integer(value) =&gt; println!(&quot;Index &#123;&#125;: Integer(&#123;&#125;)&quot;, index, value),</span><br><span class="line">            Test::Float(value) =&gt; println!(&quot;Index &#123;&#125;: Float(&#123;&#125;)&quot;, index, value),</span><br><span class="line">            Test::Text(value) =&gt; println!(&quot;Index &#123;&#125;: Text(&#123;&#125;)&quot;, index, value),</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><strong>Capacity and reset</strong><br><strong>When capacity needs to extend, Double it</strong><ul>
+<li>Initially allocate: <code>Vec::with_capacity(n)</code></li>
+<li>Check: <code>v.capacity()</code></li>
+<li>Adjust: <code>v.shrink_to_fit();</code><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn main() &#123;</span><br><span class="line">    let mut vec = Vec::with_capacity(2); </span><br><span class="line"></span><br><span class="line">    println!(&quot;Initial capacity: &#123;&#125;&quot;, vec.capacity());</span><br><span class="line"></span><br><span class="line">    vec.push(1);</span><br><span class="line">    vec.push(2);</span><br><span class="line">// 2 </span><br><span class="line">    println!(&quot;Capacity after pushing 2 elements: &#123;&#125;&quot;, vec.capacity());</span><br><span class="line"></span><br><span class="line">    vec.push(3); // Re-allocate</span><br><span class="line">// 4</span><br><span class="line">    println!(&quot;Capacity after pushing 3rd element: &#123;&#125;&quot;, vec.capacity());</span><br><span class="line">    vec.shrink_to_fit();</span><br><span class="line">    println!(&quot;Capacity after shrink: &#123;&#125;&quot;, vec.capacity());</span><br><span class="line">// 3</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<h2 id="2、HashMap"><a href="#2、HashMap" class="headerlink" title="2、HashMap"></a>2、HashMap</h2><p><code>use std::collections::HashMap;</code></p>
+<ul>
+<li>Set up:<ul>
+<li>Blank: <code>let h:HashMap&lt;String,i32&gt; = HashMap::new()</code></li>
+<li>Initialization: <code>let mut h = HashMap::from([(String::from(&quot;A&quot;):1),(..)])</code><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">use std::collections::HashMap;</span><br><span class="line"></span><br><span class="line">fn main() &#123;</span><br><span class="line">    let mut map: HashMap&lt;String, i32&gt; = HashMap::new();</span><br><span class="line">    map.insert(String::from(&quot;A&quot;),3);</span><br><span class="line">    </span><br><span class="line">    let mut scores = HashMap::from([</span><br><span class="line">        (String::from(&quot;Blue&quot;), 10),</span><br><span class="line">        (String::from(&quot;Yellow&quot;), 50),</span><br><span class="line">    ]);</span><br><span class="line"></span><br><span class="line">    println!(&quot;&#123;:?&#125;&quot;, map);   </span><br><span class="line">    println!(&quot;&#123;:?&#125;&quot;, scores); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li>Insert and update  <ul>
+<li><code>a.insert(String::from(&quot;A&quot;),10)</code></li>
+<li><code>a.insert(String::from(&quot;A&quot;),30)</code> Updated</li>
+</ul>
+</li>
+<li>Combine:<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">for (key, value) in a2&#123;</span><br><span class="line">	a1.entry(key).or_insert(value); // No cover</span><br><span class="line">	//a1.entry(key).insert(value);// cover</span><br><span class="line">&#125;	</span><br></pre></td></tr></table></figure></li>
+<li>Read: <ul>
+<li><code>a.get(&quot;A&quot;)</code> return <code>Option&lt;&amp;T&gt;</code>  <code>if le some(v) = a.get_mut(&quot;A&quot;)&#123;*v=3&#125; </code></li>
+<li><code>let keys: Vec&lt;_&gt; = a.keys().collect();</code> </li>
+<li><code>let values: Vec&lt;_&gt; = a.values().collect();</code></li>
+</ul>
+</li>
+<li>Delete: <ul>
+<li><code>a.remove(&quot;A&quot;)</code> return <code>Option&lt;T&gt;</code></li>
+<li><code>a.clear()</code></li>
+</ul>
+</li>
+<li>if certain key exist: <code>if a.contains_key(&quot;A&quot;)</code></li>
+<li>Go through: <ul>
+<li><code>for (key: &amp;String,val: &amp;i32) in &amp;mut a &#123;*val = 0;&#125;</code></li>
+<li><strong>Key are unchangeable</strong></li>
+<li><ul>
+<li><code>match</code>  <ul>
+<li><code>match key.as_str()&#123;&quot;A&quot; =&gt;&#123;&#125;&#125;</code></li>
+<li><code>match value&#123;0..=20 =&gt;&#123;&#125;&#125;</code></li>
+<li><code>match (key.as_str(),value)&#123;(&quot;A&quot;,_) =&gt; &#123;&#125;&#125;</code></li>
+<li>+if <code>match key.as_str()&#123;&quot;A&quot; if *value&lt;10 =&gt; &#123;&#125;&#125;</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">use std::collections::HashMap;</span><br><span class="line"></span><br><span class="line">fn main() &#123;</span><br><span class="line">    let mut scores = HashMap::new();</span><br><span class="line">    </span><br><span class="line">    scores.insert(String::from(&quot;Blue&quot;), 10);</span><br><span class="line">    scores.insert(String::from(&quot;Yellow&quot;), 50);</span><br><span class="line">    scores.insert(String::from(&quot;Red&quot;), 30);</span><br><span class="line">    </span><br><span class="line">    for (key: &amp;String, value:&amp;i32) in &amp;scores &#123;</span><br><span class="line">        match key.as_str() &#123;</span><br><span class="line">            &quot;Blue&quot; if *value &lt; 20 =&gt; println!(&quot;&#123;&#125; has a low score of &#123;&#125;&quot;, key, value),</span><br><span class="line">            &quot;Yellow&quot; if *value &gt;= 20 =&gt; println!(&quot;&#123;&#125; has a high score of &#123;&#125;&quot;, key, value),</span><br><span class="line">            _ =&gt; println!(&quot;&#123;&#125; has a score of &#123;&#125;&quot;, key, value),</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>Hash Ownership</strong><br><strong>Lifetime of variants is determined by:  LAST TIME being Used &amp; Block Scope.</strong><ul>
+<li>ISERT: <code>h.insert(k,v)</code>  k, v Ownership transferred</li>
+<li>READ: <code>h.get()</code> and <code>h.get_mut()</code> <ul>
+<li>can’t operate together in the same scope</li>
+<li><code>get_mut()</code> can’t be used tewice</li>
+</ul>
+</li>
+<li>FETCH: <code>let m1 = map.get(&quot;A&quot;)</code> <ul>
+<li><code>if let Some(v:&amp;i32)=m1 &#123;&#125;</code>  m1 ownsership transferred</li>
+<li>&#96;if let Some(v:&amp;&amp;i32)&#x3D;&amp;m1{} √</li>
+</ul>
+</li>
+<li>TRANSFER: <ul>
+<li><code>fn process(map: HashMap&lt;String,i32&gt;)&#123;&#125; process(map);</code> map ownership lost</li>
+<li><code>fn process(map: &amp;HashMap&lt;String,i32&gt;)&#123;&#125; process(&amp;map);</code> √</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn main()&#123;</span><br><span class="line">	let mut map = HashMap::new();</span><br><span class="line">    map.insert(&quot;key1&quot;, &quot;value1&quot;);</span><br><span class="line">    </span><br><span class="line">    let m2 = map.get_mut(&quot;key1&quot;); //m2 start</span><br><span class="line">    if let Some(v) = m2&#123;</span><br><span class="line">        *v = &quot;new value1&quot;;</span><br><span class="line">    &#125; </span><br><span class="line">    //println!(&quot;&#123;:?&#125;&quot;,m2); // m2 lost ownership</span><br><span class="line">    //m2 ends</span><br><span class="line">    </span><br><span class="line">	let m1 = map.get(&quot;key1&quot;); //m1 starts</span><br><span class="line">    println!(&quot;&#123;:?&#125;&quot;,m1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="3、hash-collision"><a href="#3、hash-collision" class="headerlink" title="3、hash collision"></a>3、hash collision</h2><p>A Hash Collision is when <strong>two different keys</strong> are mapped to <strong>the same index</strong></p>
+<h3 id="seperate-chaining"><a href="#seperate-chaining" class="headerlink" title="seperate chaining"></a>seperate chaining</h3><p>Set up a hashmap: every <code>Index</code> –&gt; store a <code>Vec&lt;(key,value)&gt;</code></p>
+<ul>
+<li><code>let mut a: HashMap&lt;u32, Vec&lt;u32,u32&gt;&gt; = HashMap::new();</code></li>
+<li><code>h.entry(index).or_insert(Vec::new()).push((k,v))</code><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">use std::collections::HashMap;</span><br><span class="line"></span><br><span class="line">fn hash(key: u32) -&gt; u32 &#123;</span><br><span class="line">    key % 5</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fn insert(hash_table: &amp;mut HashMap&lt;u32, Vec&lt;(u32, u32)&gt;&gt;, key: u32, value: u32) &#123;</span><br><span class="line">    let index = hash(key); //function(key) --&gt; same index</span><br><span class="line">    hash_table.entry(index).or_insert(Vec::new()).push((key, value));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fn print_hash_table(hash_table: &amp;HashMap&lt;u32, Vec&lt;(u32, u32)&gt;&gt;) &#123;</span><br><span class="line">    for (index, list) in hash_table &#123;</span><br><span class="line">        println!(&quot;Index &#123;&#125;: &#123;:?&#125;&quot;, index, list);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">fn main() &#123;</span><br><span class="line">    let mut hash_table: HashMap&lt;u32, Vec&lt;(u32, u32)&gt;&gt; = HashMap::new();</span><br><span class="line"></span><br><span class="line">    insert(&amp;mut hash_table, 3, 9); //3%5=3</span><br><span class="line">    insert(&amp;mut hash_table, 8, 64); //8%5=3</span><br><span class="line">    insert(&amp;mut hash_table, 13, 169); //13%5=3</span><br><span class="line">    </span><br><span class="line">    print_hash_table(&amp;hash_table);</span><br><span class="line">&#125;</span><br><span class="line">//Index 3: [(3, 9), (8, 64), (13, 169)]</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="linear-search"><a href="#linear-search" class="headerlink" title="linear search"></a>linear search</h3><p>Set up a hashmap <code>Vec&lt;&gt;</code>, every index –&gt; <code>Option&lt;(key,value)&gt;</code>  if full-index added, therefore, vector consists of <code>Some(k,v) and None</code></p>
+<ul>
+<li><code>let mut hash_table: Vec&lt;Option&lt;(u32,u32)&gt;&gt; = vec![None,5]</code></li>
+<li><code>while h[index].is_some()&#123;change index&#125; h[index]=Some((k,v))</code><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn hash(key: u32) -&gt; usize &#123;</span><br><span class="line">	(key % 5) as usize</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fn insert(hash_table: &amp;mut Vec&lt;Option&lt;(u32, u32)&gt;&gt;, key: u32, value: u32) &#123;</span><br><span class="line">    let mut index = hash(key);</span><br><span class="line">    while hash_table[index].is_some() &#123;</span><br><span class="line">        index = (index + 1) % hash_table.len(); </span><br><span class="line">        // index 3 -&gt; (3+1)%1=4 -&gt; (3+1)%2=0</span><br><span class="line">    &#125;</span><br><span class="line">    hash_table[index] = Some((key, value));</span><br><span class="line">&#125;</span><br><span class="line">fn print_hash_table(hash_table: &amp;Vec&lt;Option&lt;(u32, u32)&gt;&gt;) &#123;</span><br><span class="line">    for (index:u32, pair: &amp;Option&lt;(u32,u32)&gt;) in hash_table.iter().enumerate() &#123;</span><br><span class="line">        match pair &#123;</span><br><span class="line">            Some((key, value)) =&gt; println!(&quot;Index &#123;&#125;: (&#123;&#125;, &#123;&#125;)&quot;, index, key, value),</span><br><span class="line">            None =&gt; println!(&quot;Index &#123;&#125;: Empty&quot;, index), // null</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;  </span><br><span class="line">fn main() &#123;</span><br><span class="line">    let mut hash_table = vec![None; 5];  </span><br><span class="line">    insert(&amp;mut hash_table, 3, 9);</span><br><span class="line">    insert(&amp;mut hash_table, 8, 64);</span><br><span class="line">    insert(&amp;mut hash_table, 13, 169);</span><br><span class="line">    print_hash_table(&amp;hash_table);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="4、zip"><a href="#4、zip" class="headerlink" title="4、zip()"></a>4、zip()</h2><ul>
+<li>Combine two iters<br><code>for (a,b) in v1.iter().zip(v2.iter())</code><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn main() &#123;</span><br><span class="line">    let v1 = vec![1, 2];</span><br><span class="line">    let v2 = vec![4, 5, 6];</span><br><span class="line"></span><br><span class="line">    for (a, b) in v1.iter().zip(v2.iter()) &#123;</span><br><span class="line">        println!(&quot;(&#123;&#125;, &#123;&#125;)&quot;, a, b); //(1,4) (2,5)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    let v3 = vec![&quot;a&quot;, &quot;b&quot;, &quot;c&quot;];</span><br><span class="line">     for (a, b) in v2.iter().zip(v3.iter()) &#123;</span><br><span class="line">        println!(&quot;(&#123;&#125;, &#123;&#125;)&quot;, a, b); //(4:a) (5:b) (6:c)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>zip() + map&#x2F;filter<ul>
+<li><code>v1.iter().zip(v2).map(|(a:&amp;i32,b:&amp;i32)|f(a,b)).collect()</code></li>
+<li><code>v1.iter().zip(v2).filter(|(&amp;a:i32,&amp;b:i32)|condition).collect()</code></li>
+</ul>
+</li>
+<li>zip() + enum<ul>
+<li><code>for (i, (a, b)) in v1.iter().zip(v2.iter()).enumerate()</code> i 0..n</li>
+</ul>
+</li>
+<li>unzip<br><code>let (vec1, vec2): (Vec&lt;_&gt;, Vec&lt;_&gt;) = v1.iter().zip(v2.iter()).unzip();</code></li>
+</ul>
 ]]></content>
       <categories>
         <category>Rust</category>
       </categories>
       <tags>
-        <tag>Rust</tag>
-        <tag>data type</tag>
-        <tag>struct</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>RustDay3&amp;4 Function &amp; Process control</title>
-    <url>/2024/08/27/Rust-Day3%20&amp;%20Day4/</url>
-    <content><![CDATA[<h2 id="1、Function"><a href="#1、Function" class="headerlink" title="1、Function"></a>1、Function</h2><h3 id="①-Normal-function"><a href="#①-Normal-function" class="headerlink" title="① Normal function"></a>① Normal function</h3><p>Note：</p>
-<ul>
-<li>Snake case: <code>f()-&gt;x</code></li>
-<li><code>return x+y;</code> or <code>x+y</code></li>
-<li>A data <strong>type</strong> is necessary<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn add(x:i32,y:i32)-&gt; i32&#123;</span><br><span class="line">    return x + y;</span><br><span class="line">&#125;</span><br><span class="line">fn add()-&gt;()&#123; //return null</span><br><span class="line">	println!(&quot;Love&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h3 id="②-Diverge-function-Never-Return"><a href="#②-Diverge-function-Never-Return" class="headerlink" title="② Diverge function (Never Return)"></a>② Diverge function (Never Return)</h3><p>Note: <code>!</code> means no return</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn deadend() -&gt; ! &#123;</span><br><span class="line">	panic!(&quot;You&#x27;re done&quot;);</span><br><span class="line">	loop&#123;&#125;;</span><br><span class="line">	todo!();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="2、Process-control"><a href="#2、Process-control" class="headerlink" title="2、Process control"></a>2、Process control</h2><h3 id="①-IF"><a href="#①-IF" class="headerlink" title="① IF"></a>① IF</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">if number &lt; 5 &#123;</span><br><span class="line">	println!(&quot;True&quot;);</span><br><span class="line">&#125;</span><br><span class="line">else if number ==5 &#123;</span><br><span class="line">	println!(&quot;Exact&quot;);</span><br><span class="line">&#125;</span><br><span class="line">else &#123;</span><br><span class="line">	println!(&quot;Wrong&quot;);</span><br><span class="line">&#125;	</span><br></pre></td></tr></table></figure>
-
-<h3 id="②-Loop"><a href="#②-Loop" class="headerlink" title="② Loop"></a>② Loop</h3><p>Note:</p>
-<ul>
-<li>loop{} </li>
-<li><strong>continue</strong> : Jump back to the first line in the loop</li>
-<li><strong>break</strong> : Jump out the loopmm ( only jump out one layer loop )<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn main()&#123;</span><br><span class="line">	let num = 0;</span><br><span class="line">	loop &#123;</span><br><span class="line">		num +=1;</span><br><span class="line">		if num == 3 &#123;</span><br><span class="line">			println!(&quot;I don&#x27;t like 3&quot;);</span><br><span class="line">			continue; </span><br><span class="line">		&#125;</span><br><span class="line">		println!(&quot;&#123;&#125;&quot;,num);</span><br><span class="line">		if num &gt; 5 &#123;</span><br><span class="line">			break;</span><br><span class="line">		&#125;		</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>Muti-layer loop</li>
-</ul>
-<p><code>&#39;name: loop&#123;&#125;</code>  <code>break &#39;name;</code></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let mut a = 10;</span><br><span class="line">&#x27;layer1: loop &#123;</span><br><span class="line">	a += 1;</span><br><span class="line">	println!(&quot;&#123;&#125;&quot;,a);</span><br><span class="line">    loop&#123;</span><br><span class="line">	    a -= 1;</span><br><span class="line">		 if a &lt; 5&#123;</span><br><span class="line">			println!(&quot;&#123;&#125;&quot;,a);</span><br><span class="line">			break &#x27;layer1;</span><br><span class="line">		&#125;                </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="③-While"><a href="#③-While" class="headerlink" title="③ While"></a>③ While</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let a = [&quot;I&quot;,&quot;Love&quot;,&quot;YOU&quot;];</span><br><span class="line">let mut i = 0;</span><br><span class="line">while i &lt; a.len()&#123;</span><br><span class="line">	println!(&quot;&#123;&#125;&quot;,a[i]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="④-For"><a href="#④-For" class="headerlink" title="④ For"></a>④ For</h3><p> Note: </p>
-<ul>
-<li><code>(0..3) 0 1 2</code> <code>(0..=3) 0 1 2 3</code> <code>(0..3).rev() 2 1 0</code><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let a = [&quot;I&quot;,&quot;Love&quot;,&quot;YOU&quot;];</span><br><span class="line">let b = [&quot;zhang&quot;,&quot;ruo&quot;,&quot;yun&quot;];</span><br><span class="line">for i in a &#123; </span><br><span class="line">	println!(&quot;&#123;&#125;&quot;,i);</span><br><span class="line">&#125;</span><br><span class="line">for i in (0..3)&#123;</span><br><span class="line">	println!(&quot;&#123;&#125;&quot;,b[i]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h3 id="⑤-Iterate-over-arrays"><a href="#⑤-Iterate-over-arrays" class="headerlink" title="⑤ Iterate over arrays"></a>⑤ Iterate over arrays</h3><h4 id="iter-Go-through-array"><a href="#iter-Go-through-array" class="headerlink" title=".iter()   Go through array"></a><code>.iter()</code>   Go through array</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let x: [&amp;str;3] = [&quot;道&quot;,&quot;可&quot;,&quot;道&quot;]; </span><br><span class="line">for i: &amp;&amp;str in x.iter()&#123;</span><br><span class="line">	println!(&quot;&#123;&#125;&quot;,i);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li><code>.iter().map().collect()</code> Pose f(x) to x in X–&gt;Y<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn main() &#123;</span><br><span class="line">    let x = [1, 2, 3, 4, 5];    </span><br><span class="line">    let y: Vec&lt;i32&gt; = x.iter().map(|x| x * 2-1).collect();</span><br><span class="line">    println!(&quot;&#123;:?&#125;&quot;, y); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li><code>iter().enumerate()</code> Index and value iterate togather<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn main() &#123;</span><br><span class="line">    let names = [&quot;道可道&quot;, &quot;非常道&quot;, &quot;无名&quot;, &quot;天地之始&quot;];</span><br><span class="line">	for (index, name) in names.iter().enumerate() &#123;</span><br><span class="line">        println!(&quot;Index: &#123;&#125;, Value: &#123;&#125;&quot;, index, name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-&#96;&#96;<br>Note: <strong>Integer array</strong>  Copy only</li>
-</ul>
-<h3 id="⑥-Call-to-Assign"><a href="#⑥-Call-to-Assign" class="headerlink" title="⑥ Call to Assign"></a>⑥ Call to Assign</h3><ul>
-<li><strong>Call if</strong><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let condition = true;</span><br><span class="line">let number = if condition &#123;</span><br><span class="line">	5</span><br><span class="line">&#125;</span><br><span class="line">else&#123;</span><br><span class="line">	6</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
-<li><strong>Call loop</strong><br>Note: The return is determined by <strong>break</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let mut counter = 10;</span><br><span class="line">let num = loop &#123;</span><br><span class="line">	counter += 1;</span><br><span class="line">	if counter &gt; 10 &#123;</span><br><span class="line">		break counter * 2;</span><br><span class="line">		&#125;</span><br><span class="line">    &#125;;</span><br><span class="line">println!(&quot;&#123;&#125;&quot;,num);</span><br></pre></td></tr></table></figure></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Rust</category>
-      </categories>
-      <tags>
-        <tag>Rust</tag>
-        <tag>function</tag>
+        <tag>Vec &amp; Hashmap - Rust - Vector - HashMap</tag>
       </tags>
   </entry>
   <entry>
@@ -342,6 +389,105 @@ E.g.:</li>
       </tags>
   </entry>
   <entry>
+    <title>RustDay11 Rust data type—Struct</title>
+    <url>/2024/08/26/Rust-Day11/</url>
+    <content><![CDATA[<h2 id="1、Definition"><a href="#1、Definition" class="headerlink" title="1、Definition"></a>1、Definition</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">struct User&#123;</span><br><span class="line">	name: String,</span><br><span class="line">	balance: i32,</span><br><span class="line">	active: bool</span><br><span class="line">&#125;</span><br><span class="line">// Turple struct</span><br><span class="line">struct Color&#123;i32,i32,i32&#125;</span><br><span class="line">// Unit Struct</span><br><span class="line">struct Alwaysequal;</span><br><span class="line"></span><br><span class="line">fn main()&#123;</span><br><span class="line">	let mut user1 = User&#123;</span><br><span class="line">		name: String::from(&quot;王也&quot;),</span><br><span class="line">		balance: 1000,</span><br><span class="line">		active: true,</span><br><span class="line">	&#125;;</span><br><span class="line">	user1.name = String::from(&quot;张楚岚&quot;);</span><br><span class="line">	</span><br><span class="line">	// struct Update method </span><br><span class="line">	let mut user2 = User&#123;</span><br><span class="line">		name: String::from(&quot;冯宝宝&quot;), //ownership transferred</span><br><span class="line">		..user1</span><br><span class="line">	&#125;; </span><br><span class="line"></span><br><span class="line">	let col = Color(0,0,0);</span><br><span class="line">	println!(&quot;&#123;&#125;&quot;,col.0)</span><br><span class="line"></span><br><span class="line">	let oject = Alwaysequal;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2、Ownership"><a href="#2、Ownership" class="headerlink" title="2、Ownership"></a>2、Ownership</h3><ul>
+<li>Owning fields : struct instance and all it’s fields share the same lifetime </li>
+<li>Dynamic memory: No Copy– ownership transfferd</li>
+<li>Borrowed fields: If there are fields like <code>&amp;T or &amp;mut T</code>  Lifetime has to be annotated. <ul>
+<li><strong>vv &#x3D; &amp;v,  lifeime v≥vv</strong></li>
+<li>&lt;’a&gt;–&gt; <strong>Reference fields lifetime ≥ Struct lifetime</strong></li>
+</ul>
+</li>
+<li>If the ownership of one field changed, the whole struct can’t be added value&#x2F;call, but single field is ok <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">struct User&#123;</span><br><span class="line">    name: String,</span><br><span class="line">&#125;</span><br><span class="line">fn main()&#123;</span><br><span class="line">    let mut user1 = User&#123;</span><br><span class="line">    name: String::from(&quot;王也&quot;),</span><br><span class="line">    &#125;; </span><br><span class="line">    // Lifetime: user1-main&#123;&#125; user1.name belongs to user1</span><br><span class="line">    </span><br><span class="line">    // let mut name = user1.name; // ownership transferred </span><br><span class="line">    </span><br><span class="line">    let mut name: &amp; mut String = &amp; mut user1.name;</span><br><span class="line">    // name is mut address</span><br><span class="line">    // Lifetime: name ≤ user1.name</span><br><span class="line">      </span><br><span class="line">    *name = String::from(&quot;张楚岚&quot;); // change the address value</span><br><span class="line">    </span><br><span class="line">    println!(&quot;&#123;&#125;&quot;,user1.name);// changed</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">struct User&lt;&#x27;a&gt; &#123;</span><br><span class="line">    username: &amp;&#x27;a str,  </span><br><span class="line">    email: &amp;&#x27;a str,</span><br><span class="line">&#125;</span><br><span class="line">fn main() &#123;</span><br><span class="line">    let email: String = String::from(&quot;Username@gail.com&quot;);</span><br><span class="line">// email- dynamic, Lifetime-main&#123;&#125;</span><br><span class="line"></span><br><span class="line">    let username: &amp;str = &amp;email[0..=7];</span><br><span class="line">// username is a slice of email, Lifetime ≤ email</span><br><span class="line"></span><br><span class="line">	let user1 = User&#123;</span><br><span class="line">	    username = username;</span><br><span class="line">	    email = &amp;email;</span><br><span class="line">    &#125;</span><br><span class="line">// user1 lifetime ≤ &amp;email</span><br><span class="line"></span><br><span class="line">    println!(&quot;&#123;&#125;&quot;,user1.username);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="3、Function"><a href="#3、Function" class="headerlink" title="3、Function"></a>3、Function</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">struct Rectangle &#123;</span><br><span class="line">    width: i32,</span><br><span class="line">    height: i32,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">impl Rectangle &#123;</span><br><span class="line"></span><br><span class="line">    // Instance funtion</span><br><span class="line">    fn ins_area( &amp;self )-&gt;i32&#123;</span><br><span class="line">        self.width * self.height</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    fn add(&amp;mut self, a: i32) &#123;</span><br><span class="line">        self.width += a;</span><br><span class="line">        self.height += a;</span><br><span class="line">        println!(&quot;added area is &#123;&#125;&quot;,self.ins_area());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">impl Rectangle&#123;</span><br><span class="line">    //Association function</span><br><span class="line">    fn new(width: i32, height: i32) -&gt; Rectangle &#123; </span><br><span class="line">	    Rectangle &#123; width, height &#125; </span><br><span class="line">    &#125;</span><br><span class="line">    fn asso_area(a:i32,b:i32) -&gt; i32&#123;</span><br><span class="line">        a * b</span><br><span class="line">    &#125;</span><br><span class="line">    fn total_area(r1:&amp;Rectangle, r2:&amp;Rectangle) -&gt; i32 &#123;</span><br><span class="line">        r1.ins_area() + r2.ins_area()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fn main()&#123;</span><br><span class="line">    let mut m1 = Rectangle::new(10,10);</span><br><span class="line"></span><br><span class="line">    println!(&quot;&#123;&#125;&quot;,m1.ins_area()); // call instance method</span><br><span class="line">    m1.add(2);</span><br><span class="line"></span><br><span class="line">    let area = Rectangle::asso_area(10, 5); //call association function</span><br><span class="line">    println!(&quot;&#123;&#125;&quot;,area);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="4、trait"><a href="#4、trait" class="headerlink" title="4、trait"></a>4、trait</h2><p>Act like an <strong>Interface</strong></p>
+<ul>
+<li>define<code>trait</code>** :<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">trait Need_print&#123;</span><br><span class="line">	fn print_info( &amp;self ); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>realize <code>trait</code> for struct: <code>impl TraitName for StructName</code> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">struct Book &#123;</span><br><span class="line">    title: String,</span><br><span class="line">    author: String,</span><br><span class="line">&#125;</span><br><span class="line">struct Person &#123;</span><br><span class="line">    name: String,</span><br><span class="line">    age: u8,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">impl Need_print for Book &#123;</span><br><span class="line">    fn print_info(&amp;self) &#123;</span><br><span class="line">        println!(&quot;Book: &#123;&#125; by &#123;&#125;&quot;, self.title, self.author);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">impl Need_print for Person &#123;</span><br><span class="line">    fn print_info(&amp;self) &#123;</span><br><span class="line">        println!(&quot;Person: &#123;&#125; is &#123;&#125; years old&quot;, self.name, self.age);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fn main() &#123;</span><br><span class="line">    let my_book = Book &#123;</span><br><span class="line">        title: String::from(&quot;Rust&quot;),</span><br><span class="line">        author: String::from(&quot;John&quot;),</span><br><span class="line">    &#125;;</span><br><span class="line">    let my_person = Person &#123;</span><br><span class="line">        name: String::from(&quot;Alice&quot;),</span><br><span class="line">        age: 30,</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    my_book.print_info(); </span><br><span class="line">    my_person.print_info(); </span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="5、print"><a href="#5、print" class="headerlink" title="5、print"></a>5、print</h2><h3 id="derive-Debug"><a href="#derive-Debug" class="headerlink" title="#[derive(Debug)]"></a>#[derive(Debug)]</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#[derive(Debug)]</span><br><span class="line">struct User &#123;</span><br><span class="line">    name: String,</span><br><span class="line">    age: u32,</span><br><span class="line">&#125;</span><br><span class="line">fn main() &#123;</span><br><span class="line">    let user1 = User &#123;</span><br><span class="line">        name: String::from(&quot;Alice&quot;),</span><br><span class="line">        age: 30,</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    // 使用 Debug 输出完整的结构体内容</span><br><span class="line">    println!(&quot;&#123;:?&#125;&quot;, user1);  // simplified</span><br><span class="line">    println!(&quot;&#123;:#?&#125;&quot;, user1); // beautified</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Customized-print-fmt"><a href="#Customized-print-fmt" class="headerlink" title="Customized print: fmt"></a>Customized print: <code>fmt</code></h3><h4 id="Display"><a href="#Display" class="headerlink" title="Display {}"></a>Display <code>&#123;&#125;</code></h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">use std::fmt;</span><br><span class="line"></span><br><span class="line">struct User &#123;</span><br><span class="line">    name: String,</span><br><span class="line">    age: u32,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">impl fmt::Display for User &#123;</span><br><span class="line">    fn fmt ( &amp;self, f: &amp;mut fmt::Formatter&lt;&#x27;_&gt;) -&gt; fmt::Result &#123;</span><br><span class="line">        write!(f, &quot;User is &#123;&#125;, Age is &#123;&#125;&quot;, self.name, self.age)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fn main() &#123;</span><br><span class="line">    let user = User &#123;</span><br><span class="line">        name: String::from(&quot;Alice&quot;),</span><br><span class="line">        age: 30,</span><br><span class="line">    &#125;;</span><br><span class="line">    println!(&quot;&#123;&#125;&quot;, user); // directly print user</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h4 id="Debug"><a href="#Debug" class="headerlink" title="Debug {:?}"></a>Debug <code>&#123;:?&#125;</code></h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#[derive(Debug)]</span><br><span class="line"></span><br><span class="line">struct User &#123;</span><br><span class="line">    name: String,</span><br><span class="line">    age: u32,</span><br><span class="line">&#125;</span><br><span class="line">fn main() &#123;</span><br><span class="line">    let user = User &#123;</span><br><span class="line">        name: String::from(&quot;Alice&quot;),</span><br><span class="line">        age: 30,</span><br><span class="line">    &#125;;</span><br><span class="line">    println!(&quot;&#123;:?&#125;&quot;, user);  </span><br><span class="line">    println!(&quot;&#123;:#?&#125;&quot;, user); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>E.g.:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">use std::fmt;</span><br><span class="line">struct Rec&#123;</span><br><span class="line">	l:i32,</span><br><span class="line">	w:i32,</span><br><span class="line">&#125;</span><br><span class="line">impl fmt::Display for Rec&#123;</span><br><span class="line">	fn fmt( &amp;self, f:&amp;mut fmt::Formatter&lt;&#x27;_&gt;) -&gt; fmt::Result&#123;</span><br><span class="line">		for i in 0..self.l&#123;</span><br><span class="line">			let mut s = String::new();</span><br><span class="line">			for j in 0..self.w&#123;</span><br><span class="line">				s.push_str(&quot;*&quot;);</span><br><span class="line">			&#125;</span><br><span class="line">			write!(f,&quot;&#123;&#125;\n&quot;,s);</span><br><span class="line">		&#125;</span><br><span class="line">		Ok(())</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">fn main()&#123;</span><br><span class="line">	let r = Rec&#123;</span><br><span class="line">		l:4,</span><br><span class="line">		w:3</span><br><span class="line">	&#125;;</span><br><span class="line">	println!(&quot;&#123;&#125;&quot;,r);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+]]></content>
+      <categories>
+        <category>Rust</category>
+      </categories>
+      <tags>
+        <tag>Rust</tag>
+        <tag>data type</tag>
+        <tag>struct</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>RustDay7&amp;8&amp;9 Rust data type—Basic&amp;Array+Slices&amp;String</title>
+    <url>/2024/08/26/Rust-Day7%20&amp;%20Day8%20&amp;%20Day9/</url>
+    <content><![CDATA[<h2 id="1、Basic-Type"><a href="#1、Basic-Type" class="headerlink" title="1、Basic Type"></a>1、Basic Type</h2><ul>
+<li><code>i8 i16 i32 i64 i128</code>; <code>u8 u16 u32 u64 u128</code><br>(2): <code>0b111_000</code> (10): <code>1132_235</code>  (8): <code>0o77</code>  (16): <code>0xff</code> </li>
+<li><code>f32</code> <code>f64</code> (accuracy)<br>Note: <code>NAN</code> Result undefined in math<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let v = (-2.3_f64).sqrt();</span><br><span class="line">if v.is_nan()&#123;</span><br><span class="line">	println!(&quot;v is nan&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>Bool</li>
+<li>Char: Unicode 4bit</li>
+<li>Sequence <code>(1..4):1 2 3</code> <code>(a..=z)</code><br>Note: Type transformation<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let i:i32 = 5;</span><br><span class="line">let k:f32 = i as f32; </span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="2、Array-and-Slices"><a href="#2、Array-and-Slices" class="headerlink" title="2、Array and Slices"></a>2、Array and Slices</h2><p>Array :</p>
+<ul>
+<li>same type data series</li>
+<li>Static</li>
+<li>elements num unchanged<br>Slice:</li>
+<li>Array String Vec</li>
+<li>type: <code>&amp;[i32]</code> Restoring the index of the first element and the length.<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn reset(a: &amp;[i32]) -&gt; Vec&lt;i32&gt;&#123; </span><br><span class="line">//input: Slice  output:Vec dynamic array</span><br><span class="line"></span><br><span class="line">	a.iter().map(|&amp;x| x*3).collect() //return </span><br><span class="line">&#125;</span><br><span class="line">fn main()&#123;</span><br><span class="line">	let b = [1,2,3,4];</span><br><span class="line">	println!(&quot;&#123;:?&#125;&quot;,reset(&amp;b))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+Common functions</li>
+<li>Iteration and Reset<br><code>iter_mut()</code> Mutable<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let r: &amp;mut [i32;4] = &amp;mut [1,2,3,4];</span><br><span class="line">for i:&amp;mut i32 in r.iter_mut()&#123;</span><br><span class="line">	*i *= 2;</span><br><span class="line">&#125;</span><br><span class="line">println!(&quot;&#123;:?&#125;&quot;,r);</span><br></pre></td></tr></table></figure>
+<code>s.len()</code>   <code>s.is_empty()</code><br><code>s.windows(size:3)</code>  <code>s.starts_with(&amp;[10])</code>  <code>s.clone()</code></li>
+</ul>
+<h2 id="3、String-and-str"><a href="#3、String-and-str" class="headerlink" title="3、String and &amp;str"></a>3、String and &amp;str</h2><ul>
+<li>Define:<br><code>&amp;str</code> : Index, Unchangeable, restored in Stack, Static, No ownership<br><code>String::from(&quot;&quot;)</code> : Changeable, heap, dynamic, ownership<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn main() &#123;</span><br><span class="line">    let x: [&amp;str;3] = [&quot;名&quot;, &quot;可&quot;, &quot;名&quot;];</span><br><span class="line">    let mut y: [String;3] = [String::from(&quot;非&quot;),String::from(&quot;常&quot;),String::from(&quot;道&quot;)];</span><br><span class="line">    y[2] = String::from(&quot;名&quot;);</span><br><span class="line">    println!(&quot;&#123;:?&#125;,&#123;:?&#125;&quot;,x.join(&quot;&quot;),y.join(&quot;&quot;));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>Transformation<br><code>&amp;str</code> -&gt; <code>String</code><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let s = &quot;hello&quot;;</span><br><span class="line">let string1 = s.to_string();</span><br><span class="line">// or</span><br><span class="line">let string2 = String::from(s);</span><br></pre></td></tr></table></figure>
+<code>String</code> -&gt; <code>&amp;str</code><br><code>s.as_str()</code><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let sting = String::from(&quot;无名,天地之始&quot;);</span><br><span class="line">let s1 = &amp;s[0..6] //&quot;无名&quot; one character -- 3bits</span><br><span class="line">let s2 = string.as_str();</span><br></pre></td></tr></table></figure>
+<code>i32</code> -&gt;<code>String</code><br><code>String::from_utf8(v).unwrap()</code><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn main()&#123;</span><br><span class="line">	let v = vec![104,101,108,111];</span><br><span class="line">	let s = String::from_utf8(v).unwrap();</span><br><span class="line">	println!(&quot;&#123;&#125;&quot;,s)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>Common function about String<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">string.push_str() //add</span><br><span class="line">string.insert(5,&quot; &quot;)</span><br><span class="line">string.replace(&quot;&quot;,&quot;&quot;,2)//generate new string</span><br><span class="line">string.replace_range(6..10,&quot;RUST&quot;)</span><br><span class="line">string.pop()//delete last bit</span><br><span class="line">string.remove(0)</span><br><span class="line">string1 + &quot;,&quot; + string2.as_str --&gt;String</span><br><span class="line">s = format!(&quot;&#123;&#125;&#123;&#125;&quot;,string1,string2);</span><br></pre></td></tr></table></figure>
+Note: As <strong>function parameter</strong>, it’s better to use <strong>&amp;str</strong></li>
+<li>The original variable can’t be used after function calling<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn add(s:String)-&gt;String&#123;</span><br><span class="line">	s + &quot;!&quot;</span><br><span class="line">&#125;</span><br><span class="line">fn main()&#123;</span><br><span class="line">	let s = String::from(&quot;hello&quot;);</span><br><span class="line">	add(s);</span><br><span class="line">	//println!(&quot;&#123;&#125;&quot;,s); // invalid!</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><code>fn fun(s: &amp;str)</code> could accept <code>&amp;String</code> <code>&amp; &#39;satic str</code></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Rust</category>
+      </categories>
+      <tags>
+        <tag>Rust</tag>
+        <tag>data type</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>RustDay2 Rust Variales</title>
     <url>/2024/08/27/Rust-Day2/</url>
     <content><![CDATA[<h1 id="Rust-Variales"><a href="#Rust-Variales" class="headerlink" title="Rust Variales"></a>Rust Variales</h1><h2 id="1、Mutable-and-Immutable"><a href="#1、Mutable-and-Immutable" class="headerlink" title="1、Mutable and Immutable"></a>1、Mutable and Immutable</h2><p><strong>Declaration</strong> </p>
@@ -420,35 +566,42 @@ Note: the valeue of NUM cannot be changed. <code>NUM = 1</code> <span style="col
       </tags>
   </entry>
   <entry>
-    <title>RustDay7&amp;8&amp;9 Rust data type—Basic&amp;Array+Slices&amp;String</title>
-    <url>/2024/08/26/Rust-Day7%20&amp;%20Day8%20&amp;%20Day9/</url>
-    <content><![CDATA[<h2 id="1、Basic-Type"><a href="#1、Basic-Type" class="headerlink" title="1、Basic Type"></a>1、Basic Type</h2><ul>
-<li><code>i8 i16 i32 i64 i128</code>; <code>u8 u16 u32 u64 u128</code><br>(2): <code>0b111_000</code> (10): <code>1132_235</code>  (8): <code>0o77</code>  (16): <code>0xff</code> </li>
-<li><code>f32</code> <code>f64</code> (accuracy)<br>Note: <code>NAN</code> Result undefined in math<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let v = (-2.3_f64).sqrt();</span><br><span class="line">if v.is_nan()&#123;</span><br><span class="line">	println!(&quot;v is nan&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>Bool</li>
-<li>Char: Unicode 4bit</li>
-<li>Sequence <code>(1..4):1 2 3</code> <code>(a..=z)</code><br>Note: Type transformation<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let i:i32 = 5;</span><br><span class="line">let k:f32 = i as f32; </span><br></pre></td></tr></table></figure></li>
-</ul>
-<h2 id="2、Array-and-Slices"><a href="#2、Array-and-Slices" class="headerlink" title="2、Array and Slices"></a>2、Array and Slices</h2><p>Array :</p>
+    <title>RustDay3&amp;4 Function &amp; Process control</title>
+    <url>/2024/08/27/Rust-Day3%20&amp;%20Day4/</url>
+    <content><![CDATA[<h2 id="1、Function"><a href="#1、Function" class="headerlink" title="1、Function"></a>1、Function</h2><h3 id="①-Normal-function"><a href="#①-Normal-function" class="headerlink" title="① Normal function"></a>① Normal function</h3><p>Note：</p>
 <ul>
-<li>same type data series</li>
-<li>Static</li>
-<li>elements num unchanged<br>Slice:</li>
-<li>Array String Vec</li>
-<li>type: <code>&amp;[i32]</code> Restoring the index of the first element and the length.<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn reset(a: &amp;[i32]) -&gt; Vec&lt;i32&gt;&#123; </span><br><span class="line">//input: Slice  output:Vec dynamic array</span><br><span class="line"></span><br><span class="line">	a.iter().map(|&amp;x| x*3).collect() //return </span><br><span class="line">&#125;</span><br><span class="line">fn main()&#123;</span><br><span class="line">	let b = [1,2,3,4];</span><br><span class="line">	println!(&quot;&#123;:?&#125;&quot;,reset(&amp;b))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-Common functions</li>
-<li>Iteration and Reset<br><code>iter_mut()</code> Mutable<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let r: &amp;mut [i32;4] = &amp;mut [1,2,3,4];</span><br><span class="line">for i:&amp;mut i32 in r.iter_mut()&#123;</span><br><span class="line">	*i *= 2;</span><br><span class="line">&#125;</span><br><span class="line">println!(&quot;&#123;:?&#125;&quot;,r);</span><br></pre></td></tr></table></figure>
-<code>s.len()</code>   <code>s.is_empty()</code><br><code>s.windows(size:3)</code>  <code>s.starts_with(&amp;[10])</code>  <code>s.clone()</code></li>
+<li>Snake case: <code>f()-&gt;x</code></li>
+<li><code>return x+y;</code> or <code>x+y</code></li>
+<li>A data <strong>type</strong> is necessary<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn add(x:i32,y:i32)-&gt; i32&#123;</span><br><span class="line">    return x + y;</span><br><span class="line">&#125;</span><br><span class="line">fn add()-&gt;()&#123; //return null</span><br><span class="line">	println!(&quot;Love&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
 </ul>
-<h2 id="3、String-and-str"><a href="#3、String-and-str" class="headerlink" title="3、String and &amp;str"></a>3、String and &amp;str</h2><ul>
-<li>Define:<br><code>&amp;str</code> : Index, Unchangeable, restored in Stack, Static, No ownership<br><code>String::from(&quot;&quot;)</code> : Changeable, heap, dynamic, ownership<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn main() &#123;</span><br><span class="line">    let x: [&amp;str;3] = [&quot;名&quot;, &quot;可&quot;, &quot;名&quot;];</span><br><span class="line">    let mut y: [String;3] = [String::from(&quot;非&quot;),String::from(&quot;常&quot;),String::from(&quot;道&quot;)];</span><br><span class="line">    y[2] = String::from(&quot;名&quot;);</span><br><span class="line">    println!(&quot;&#123;:?&#125;,&#123;:?&#125;&quot;,x.join(&quot;&quot;),y.join(&quot;&quot;));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>Transformation<br><code>&amp;str</code> -&gt; <code>String</code><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let s = &quot;hello&quot;;</span><br><span class="line">let string1 = s.to_string();</span><br><span class="line">// or</span><br><span class="line">let string2 = String::from(s);</span><br></pre></td></tr></table></figure>
-<code>String</code> -&gt; <code>&amp;str</code><br><code>s.as_str()</code><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let sting = String::from(&quot;无名,天地之始&quot;);</span><br><span class="line">let s1 = &amp;s[0..6] //&quot;无名&quot; one character -- 3bits</span><br><span class="line">let s2 = string.as_str();</span><br></pre></td></tr></table></figure>
-<code>i32</code> -&gt;<code>String</code><br><code>String::from_utf8(v).unwrap()</code><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn main()&#123;</span><br><span class="line">	let v = vec![104,101,108,111];</span><br><span class="line">	let s = String::from_utf8(v).unwrap();</span><br><span class="line">	println!(&quot;&#123;&#125;&quot;,s)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>Common function about String<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">string.push_str() //add</span><br><span class="line">string.insert(5,&quot; &quot;)</span><br><span class="line">string.replace(&quot;&quot;,&quot;&quot;,2)//generate new string</span><br><span class="line">string.replace_range(6..10,&quot;RUST&quot;)</span><br><span class="line">string.pop()//delete last bit</span><br><span class="line">string.remove(0)</span><br><span class="line">string1 + &quot;,&quot; + string2.as_str --&gt;String</span><br><span class="line">s = format!(&quot;&#123;&#125;&#123;&#125;&quot;,string1,string2);</span><br></pre></td></tr></table></figure>
-Note: As <strong>function parameter</strong>, it’s better to use <strong>&amp;str</strong></li>
-<li>The original variable can’t be used after function calling<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn add(s:String)-&gt;String&#123;</span><br><span class="line">	s + &quot;!&quot;</span><br><span class="line">&#125;</span><br><span class="line">fn main()&#123;</span><br><span class="line">	let s = String::from(&quot;hello&quot;);</span><br><span class="line">	add(s);</span><br><span class="line">	//println!(&quot;&#123;&#125;&quot;,s); // invalid!</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li><code>fn fun(s: &amp;str)</code> could accept <code>&amp;String</code> <code>&amp; &#39;satic str</code></li>
+<h3 id="②-Diverge-function-Never-Return"><a href="#②-Diverge-function-Never-Return" class="headerlink" title="② Diverge function (Never Return)"></a>② Diverge function (Never Return)</h3><p>Note: <code>!</code> means no return</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn deadend() -&gt; ! &#123;</span><br><span class="line">	panic!(&quot;You&#x27;re done&quot;);</span><br><span class="line">	loop&#123;&#125;;</span><br><span class="line">	todo!();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2、Process-control"><a href="#2、Process-control" class="headerlink" title="2、Process control"></a>2、Process control</h2><h3 id="①-IF"><a href="#①-IF" class="headerlink" title="① IF"></a>① IF</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">if number &lt; 5 &#123;</span><br><span class="line">	println!(&quot;True&quot;);</span><br><span class="line">&#125;</span><br><span class="line">else if number ==5 &#123;</span><br><span class="line">	println!(&quot;Exact&quot;);</span><br><span class="line">&#125;</span><br><span class="line">else &#123;</span><br><span class="line">	println!(&quot;Wrong&quot;);</span><br><span class="line">&#125;	</span><br></pre></td></tr></table></figure>
+
+<h3 id="②-Loop"><a href="#②-Loop" class="headerlink" title="② Loop"></a>② Loop</h3><p>Note:</p>
+<ul>
+<li>loop{} </li>
+<li><strong>continue</strong> : Jump back to the first line in the loop</li>
+<li><strong>break</strong> : Jump out the loopmm ( only jump out one layer loop )<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn main()&#123;</span><br><span class="line">	let num = 0;</span><br><span class="line">	loop &#123;</span><br><span class="line">		num +=1;</span><br><span class="line">		if num == 3 &#123;</span><br><span class="line">			println!(&quot;I don&#x27;t like 3&quot;);</span><br><span class="line">			continue; </span><br><span class="line">		&#125;</span><br><span class="line">		println!(&quot;&#123;&#125;&quot;,num);</span><br><span class="line">		if num &gt; 5 &#123;</span><br><span class="line">			break;</span><br><span class="line">		&#125;		</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>Muti-layer loop</li>
+</ul>
+<p><code>&#39;name: loop&#123;&#125;</code>  <code>break &#39;name;</code></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let mut a = 10;</span><br><span class="line">&#x27;layer1: loop &#123;</span><br><span class="line">	a += 1;</span><br><span class="line">	println!(&quot;&#123;&#125;&quot;,a);</span><br><span class="line">    loop&#123;</span><br><span class="line">	    a -= 1;</span><br><span class="line">		 if a &lt; 5&#123;</span><br><span class="line">			println!(&quot;&#123;&#125;&quot;,a);</span><br><span class="line">			break &#x27;layer1;</span><br><span class="line">		&#125;                </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="③-While"><a href="#③-While" class="headerlink" title="③ While"></a>③ While</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let a = [&quot;I&quot;,&quot;Love&quot;,&quot;YOU&quot;];</span><br><span class="line">let mut i = 0;</span><br><span class="line">while i &lt; a.len()&#123;</span><br><span class="line">	println!(&quot;&#123;&#125;&quot;,a[i]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="④-For"><a href="#④-For" class="headerlink" title="④ For"></a>④ For</h3><p> Note: </p>
+<ul>
+<li><code>(0..3) 0 1 2</code> <code>(0..=3) 0 1 2 3</code> <code>(0..3).rev() 2 1 0</code><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let a = [&quot;I&quot;,&quot;Love&quot;,&quot;YOU&quot;];</span><br><span class="line">let b = [&quot;zhang&quot;,&quot;ruo&quot;,&quot;yun&quot;];</span><br><span class="line">for i in a &#123; </span><br><span class="line">	println!(&quot;&#123;&#125;&quot;,i);</span><br><span class="line">&#125;</span><br><span class="line">for i in (0..3)&#123;</span><br><span class="line">	println!(&quot;&#123;&#125;&quot;,b[i]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="⑤-Iterate-over-arrays"><a href="#⑤-Iterate-over-arrays" class="headerlink" title="⑤ Iterate over arrays"></a>⑤ Iterate over arrays</h3><h4 id="iter-Go-through-array"><a href="#iter-Go-through-array" class="headerlink" title=".iter()   Go through array"></a><code>.iter()</code>   Go through array</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let x: [&amp;str;3] = [&quot;道&quot;,&quot;可&quot;,&quot;道&quot;]; </span><br><span class="line">for i: &amp;&amp;str in x.iter()&#123;</span><br><span class="line">	println!(&quot;&#123;&#125;&quot;,i);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>.iter().map().collect()</code> Pose f(x) to x in X–&gt;Y<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn main() &#123;</span><br><span class="line">    let x = [1, 2, 3, 4, 5];    </span><br><span class="line">    let y: Vec&lt;i32&gt; = x.iter().map(|x| x * 2-1).collect();</span><br><span class="line">    println!(&quot;&#123;:?&#125;&quot;, y); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><code>iter().enumerate()</code> Index and value iterate togather<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fn main() &#123;</span><br><span class="line">    let names = [&quot;道可道&quot;, &quot;非常道&quot;, &quot;无名&quot;, &quot;天地之始&quot;];</span><br><span class="line">	for (index, name) in names.iter().enumerate() &#123;</span><br><span class="line">        println!(&quot;Index: &#123;&#125;, Value: &#123;&#125;&quot;, index, name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+&#96;&#96;<br>Note: <strong>Integer array</strong>  Copy only</li>
+</ul>
+<h3 id="⑥-Call-to-Assign"><a href="#⑥-Call-to-Assign" class="headerlink" title="⑥ Call to Assign"></a>⑥ Call to Assign</h3><ul>
+<li><strong>Call if</strong><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let condition = true;</span><br><span class="line">let number = if condition &#123;</span><br><span class="line">	5</span><br><span class="line">&#125;</span><br><span class="line">else&#123;</span><br><span class="line">	6</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
+<li><strong>Call loop</strong><br>Note: The return is determined by <strong>break</strong> <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">let mut counter = 10;</span><br><span class="line">let num = loop &#123;</span><br><span class="line">	counter += 1;</span><br><span class="line">	if counter &gt; 10 &#123;</span><br><span class="line">		break counter * 2;</span><br><span class="line">		&#125;</span><br><span class="line">    &#125;;</span><br><span class="line">println!(&quot;&#123;&#125;&quot;,num);</span><br></pre></td></tr></table></figure></li>
 </ul>
 ]]></content>
       <categories>
@@ -456,7 +609,7 @@ Note: As <strong>function parameter</strong>, it’s better to use <strong>&amp;
       </categories>
       <tags>
         <tag>Rust</tag>
-        <tag>data type</tag>
+        <tag>function</tag>
       </tags>
   </entry>
 </search>
