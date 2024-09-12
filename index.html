@@ -464,6 +464,163 @@ threadstd::thread
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://Rainy-zry.github.io/2024/09/11/Rust-Day22/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="xxxx">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="全性保真">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2024/09/11/Rust-Day22/" itemprop="url">RustDay22 lib.rs</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-09-11T21:43:20+08:00">
+                2024-09-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Rust/" itemprop="url" rel="index">
+                    <span itemprop="name">Rust</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          cargo new --lib libname
+Delcaration
+declare module: pub mod name;
+declare function: pub fn hello()-&gt;String&#123;String::from(&quot;Hello&quot;)&#125;;
+struct: pub struct Person&#123;pub x:i32,pub y:String,&#125;
+impl: impl Person&#123; pun fn great()&#123;&#125;&#125;123456789// src/lib.rspub str
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2024/09/11/Rust-Day22/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+<div>
+  
+</div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://Rainy-zry.github.io/2024/09/11/Rust-Day21/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -495,7 +652,7 @@ threadstd::thread
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-09-11T21:43:20+08:00">
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-09-11T20:43:20+08:00">
                 2024-09-11
               </time>
             
@@ -780,7 +937,7 @@ ident: match dentifiers and generate
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://Rainy-zry.github.io/2024/09/10/Rust-Day22/">
+    <link itemprop="mainEntityOfPage" href="https://Rainy-zry.github.io/2024/09/08/Rust-Day15%20&%20Day16/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="xxxx">
@@ -799,7 +956,7 @@ ident: match dentifiers and generate
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2024/09/10/Rust-Day22/" itemprop="url">RustDay20 lib.rs</a></h1>
+                <a class="post-title-link" href="/2024/09/08/Rust-Day15%20&%20Day16/" itemprop="url">RustDay15&16 Smart point</a></h1>
         
 
         <div class="post-meta">
@@ -811,8 +968,8 @@ ident: match dentifiers and generate
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-09-10T21:43:20+08:00">
-                2024-09-10
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-09-08T21:43:20+08:00">
+                2024-09-08
               </time>
             
 
@@ -873,16 +1030,12 @@ ident: match dentifiers and generate
       
         
           
-          cargo new --lib libname
-Delcaration
-declare module: pub mod name;
-declare function: pub fn hello()-&gt;String&#123;String::from(&quot;Hello&quot;)&#125;;
-struct: pub struct Person&#123;pub x:i32,pub y:String,&#125;
-impl: impl Person&#123; pun fn great()&#123;&#125;&#125;123456789// src/lib.rspub str
+          Smart pointer:    Struct + Deref &amp; Drop trait
+Box&lt;T&gt; Box-a Pointer  T-valueNote:    T -&gt; Heap    Pointer -&gt; Stack    Single Ownership    Box::new - allocate memory    Drop trait - release memory	Function:    * Size is unknown, but needed    * Transfer ownership without copy    * Cert
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2024/09/10/Rust-Day22/#more" rel="contents">
+            <a class="btn" href="/2024/09/08/Rust-Day15%20&%20Day16/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -1039,159 +1192,6 @@ output: &amp;T :&amp;i32  &amp;char12345678910111213141516171819fn largest&lt;T:
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2024/09/08/Rust-Day17%20&%20Day18%20&%20Day19/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-<div>
-  
-</div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://Rainy-zry.github.io/2024/09/08/Rust-Day15%20&%20Day16/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="xxxx">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="全性保真">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2024/09/08/Rust-Day15%20&%20Day16/" itemprop="url">RustDay15&16 Smart point</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-09-08T21:43:20+08:00">
-                2024-09-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Rust/" itemprop="url" rel="index">
-                    <span itemprop="name">Rust</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          Smart pointer:    Struct + Deref &amp; Drop trait
-Box&lt;T&gt; Box-a Pointer  T-valueNote:    T -&gt; Heap    Pointer -&gt; Stack    Single Ownership    Box::new - allocate memory    Drop trait - release memory	Function:    * Size is unknown, but needed    * Transfer ownership without copy    * Cert
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2024/09/08/Rust-Day15%20&%20Day16/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
